@@ -15,7 +15,10 @@ class LessonController extends Controller
     public function show(Lesson $lesson)
     {
         $user = auth()->user();
-        $course = $lesson->course->load(['lessons', 'instructor']);
+        $course = $lesson->course->load(['sections.lessons', 'lessons', 'instructor']);
+        $lesson->load(['attachments', 'section']);
+
+        $userNotes = $user ? $lesson->notes()->where('user_id', $user->id)->orderBy('timestamp_seconds')->latest()->get() : collect();
 
         $isEnrolled = $user->isEnrolledIn($course);
 
@@ -35,7 +38,7 @@ class LessonController extends Controller
             ->toArray();
 
         return view('student.lessons.show', compact(
-            'lesson', 'course', 'isCompleted', 'isEnrolled', 'prevLesson', 'nextLesson', 'completedLessonIds'
+            'lesson', 'course', 'isCompleted', 'isEnrolled', 'prevLesson', 'nextLesson', 'completedLessonIds', 'userNotes'
         ));
     }
 

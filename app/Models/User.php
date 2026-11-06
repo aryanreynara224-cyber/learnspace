@@ -97,6 +97,12 @@ class User extends Authenticatable
         return $this->hasMany(UserBadge::class);
     }
 
+    /** Catatan materi student */
+    public function notes()
+    {
+        return $this->hasMany(LessonNote::class);
+    }
+
     /** Log XP user */
     public function xpLogs()
     {

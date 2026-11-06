@@ -59,6 +59,7 @@ class CourseController extends Controller
         // Pastikan hanya instructor pemilik yang bisa edit
         abort_if($course->instructor_id !== auth()->id(), 403);
 
+        $course->load(['sections.lessons', 'lessons.attachments']);
         $categories = Category::all();
         return view('instructor.courses.edit', compact('course', 'categories'));
     }

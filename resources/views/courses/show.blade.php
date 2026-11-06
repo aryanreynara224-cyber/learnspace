@@ -158,85 +158,196 @@
                         </div>
                     </div>
 
-                    {{-- Modul List --}}
+                    {{-- Modul List (Grouped by Section if available) --}}
                     @if($course->lessons->isNotEmpty())
-                    <div class="divide-y divide-slate-100">
-                        @foreach($course->lessons as $lesson)
-                        @php
-                            $canOpen = $isEnrolled || $lesson->isFreePreview();
-                        @endphp
-                        <div class="p-5 sm:p-6 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4
-                            {{ $canOpen ? 'hover:bg-slate-50/80 bg-white' : 'bg-slate-50/40 opacity-80' }}">
+                        @if($course->sections && $course->sections->count() > 0)
+                            <div class="divide-y divide-slate-100">
+                                @foreach($course->sections as $sec)
+                                    <div class="bg-slate-50/70">
+                                        {{-- Header Bab --}}
+                                        <div class="px-6 py-4 bg-slate-100/70 border-b border-slate-200 flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <span class="w-7 h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center text-xs font-black shrink-0">
+                                                    {{ $sec->order }}
+                                                </span>
+                                                <div>
+                                                    <h3 class="font-bold text-sm text-slate-900">Bab {{ $sec->order }}: {{ $sec->title }}</h3>
+                                                    @if($sec->description)
+                                                        <p class="text-xs text-slate-500 mt-0.5">{{ $sec->description }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <span class="text-xs text-slate-400 font-medium">{{ $sec->lessons->count() }} materi</span>
+                                        </div>
 
-                            <div class="flex items-start gap-4 flex-1 min-w-0">
-                                {{-- Order Badge --}}
-                                <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-sm shrink-0 transition-all duration-300
-                                    {{ $canOpen ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-200' : 'bg-slate-200/80 text-slate-500' }}">
-                                    {{ $lesson->order }}
-                                </div>
-
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex flex-wrap items-center gap-2 mb-1">
-                                        <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
-                                            {{ $lesson->title }}
-                                        </h3>
-
-                                        @if($lesson->isFreePreview() && !$isEnrolled)
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100/80 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
-                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                                Bisa Dibuka (Gratis)
-                                            </span>
-                                        @elseif($isEnrolled)
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
-                                                Akses Terbuka
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                                                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                                Terkunci
-                                            </span>
-                                        @endif
+                                        {{-- Lessons under Section --}}
+                                        <div class="divide-y divide-slate-100 bg-white">
+                                            @foreach($sec->lessons as $lesson)
+                                                @php $canOpen = $isEnrolled || $lesson->isFreePreview(); @endphp
+                                                <div class="p-5 sm:p-6 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 {{ $canOpen ? 'hover:bg-slate-50/80 bg-white' : 'bg-slate-50/40 opacity-80' }}">
+                                                    <div class="flex items-start gap-4 flex-1 min-w-0">
+                                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0 {{ $canOpen ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm' : 'bg-slate-200 text-slate-500' }}">
+                                                            {{ $lesson->order }}
+                                                        </div>
+                                                        <div class="min-w-0 flex-1">
+                                                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                                <h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">{{ $lesson->title }}</h4>
+                                                                @if($lesson->type === 'audio')
+                                                                    <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded border border-amber-200 shrink-0">🎧 Audio</span>
+                                                                @elseif($lesson->type === 'article')
+                                                                    <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200 shrink-0">📄 Bacaan</span>
+                                                                @endif
+                                                                @if($lesson->attachments && $lesson->attachments->count() > 0)
+                                                                    <span class="text-[10px] bg-emerald-50 text-emerald-700 font-semibold px-2 py-0.5 rounded border border-emerald-200 shrink-0">📎 {{ $lesson->attachments->count() }} berkas</span>
+                                                                @endif
+                                                                @if($lesson->isFreePreview() && !$isEnrolled)
+                                                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100/80 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
+                                                                        Bisa Dibuka (Gratis)
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            @if($lesson->description)
+                                                                <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed">{{ $lesson->description }}</p>
+                                                            @endif
+                                                            @if($lesson->duration)
+                                                                <p class="text-xs text-slate-400 mt-1.5 flex items-center gap-1">
+                                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                                    {{ $lesson->duration }} menit
+                                                                </p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center justify-end shrink-0 pl-14 sm:pl-0">
+                                                        @if($canOpen)
+                                                            <a href="{{ route('courses.lessons.show', [$course->slug, $lesson->id]) }}"
+                                                               class="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-2xl transition-all shadow-md shadow-indigo-500/20">
+                                                                <span>Buka Modul</span>
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                                            </a>
+                                                        @else
+                                                            <a href="#cta-daftar" class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-indigo-600 transition-colors py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80">
+                                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                                <span>Daftar untuk Membuka</span>
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
+                                @endforeach
 
-                                    @if($lesson->description)
-                                        <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed">
-                                            {{ $lesson->description }}
-                                        </p>
-                                    @endif
-
-                                    <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                                        @if($lesson->duration)
-                                        <span class="flex items-center gap-1 font-medium">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            {{ $lesson->duration }} menit
-                                        </span>
-                                        @endif
-                                        <span>•</span>
-                                        <span>Modul Ke-{{ $lesson->order }}</span>
+                                {{-- Unassigned Lessons --}}
+                                @php $unassigned = $course->lessons->whereNull('section_id'); @endphp
+                                @if($unassigned->count() > 0)
+                                    <div class="bg-slate-50/70">
+                                        <div class="px-6 py-3.5 bg-slate-100 border-b border-slate-200">
+                                            <h3 class="font-bold text-xs text-slate-600 uppercase tracking-wider">Materi Tambahan</h3>
+                                        </div>
+                                        <div class="divide-y divide-slate-100 bg-white">
+                                            @foreach($unassigned as $lesson)
+                                                @php $canOpen = $isEnrolled || $lesson->isFreePreview(); @endphp
+                                                <div class="p-5 sm:p-6 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 {{ $canOpen ? 'hover:bg-slate-50/80 bg-white' : 'bg-slate-50/40 opacity-80' }}">
+                                                    <div class="flex items-start gap-4 flex-1 min-w-0">
+                                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-xs shrink-0 {{ $canOpen ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm' : 'bg-slate-200 text-slate-500' }}">
+                                                            {{ $lesson->order }}
+                                                        </div>
+                                                        <div class="min-w-0 flex-1">
+                                                            <h4 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">{{ $lesson->title }}</h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex items-center justify-end shrink-0 pl-14 sm:pl-0">
+                                                        @if($canOpen)
+                                                            <a href="{{ route('courses.lessons.show', [$course->slug, $lesson->id]) }}" class="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-indigo-600 px-5 py-2.5 rounded-2xl">Buka Modul</a>
+                                                        @else
+                                                            <span class="text-xs text-slate-400">Terkunci</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            {{-- Action CTA --}}
-                            <div class="flex items-center justify-end shrink-0 pl-14 sm:pl-0">
-                                @if($canOpen)
-                                    <a href="{{ route('courses.lessons.show', [$course->slug, $lesson->id]) }}"
-                                       class="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-2xl transition-all duration-200 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98]">
-                                        <span>Buka Modul</span>
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                                    </a>
-                                @else
-                                    <a href="#cta-daftar"
-                                       class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-indigo-600 transition-colors py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                        <span>Daftar untuk Membuka</span>
-                                    </a>
                                 @endif
                             </div>
+                        @else
+                            <div class="divide-y divide-slate-100">
+                                @foreach($course->lessons as $lesson)
+                                @php
+                                    $canOpen = $isEnrolled || $lesson->isFreePreview();
+                                @endphp
+                                <div class="p-5 sm:p-6 transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4
+                                    {{ $canOpen ? 'hover:bg-slate-50/80 bg-white' : 'bg-slate-50/40 opacity-80' }}">
 
-                        </div>
-                        @endforeach
-                    </div>
+                                    <div class="flex items-start gap-4 flex-1 min-w-0">
+                                        {{-- Order Badge --}}
+                                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-sm shrink-0 transition-all duration-300
+                                            {{ $canOpen ? 'bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-200' : 'bg-slate-200/80 text-slate-500' }}">
+                                            {{ $lesson->order }}
+                                        </div>
+
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                                                    {{ $lesson->title }}
+                                                </h3>
+
+                                                @if($lesson->isFreePreview() && !$isEnrolled)
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-extrabold text-emerald-700 bg-emerald-100/80 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-xs">
+                                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                                        Bisa Dibuka (Gratis)
+                                                    </span>
+                                                @elseif($isEnrolled)
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
+                                                        Akses Terbuka
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                                        <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                        Terkunci
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            @if($lesson->description)
+                                                <p class="text-xs sm:text-sm text-slate-500 line-clamp-2 leading-relaxed">
+                                                    {{ $lesson->description }}
+                                                </p>
+                                            @endif
+
+                                            <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                                                @if($lesson->duration)
+                                                <span class="flex items-center gap-1 font-medium">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                    {{ $lesson->duration }} menit
+                                                </span>
+                                                @endif
+                                                <span>•</span>
+                                                <span>Modul Ke-{{ $lesson->order }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Action CTA --}}
+                                    <div class="flex items-center justify-end shrink-0 pl-14 sm:pl-0">
+                                        @if($canOpen)
+                                            <a href="{{ route('courses.lessons.show', [$course->slug, $lesson->id]) }}"
+                                               class="inline-flex items-center gap-2 text-xs sm:text-sm font-extrabold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 px-5 py-2.5 rounded-2xl transition-all duration-200 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:shadow-indigo-500/30 hover:scale-[1.02] active:scale-[0.98]">
+                                                <span>Buka Modul</span>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                            </a>
+                                        @else
+                                            <a href="#cta-daftar"
+                                               class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-indigo-600 transition-colors py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200/80">
+                                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                <span>Daftar untuk Membuka</span>
+                                            </a>
+                                        @endif
+                                    </div>
+
+                                </div>
+                                @endforeach
+                            </div>
+                        @endif
                     @else
                     <div class="p-12 text-center text-slate-400">
                         <p class="text-sm">Belum ada materi pembelajaran yang diterbitkan.</p>

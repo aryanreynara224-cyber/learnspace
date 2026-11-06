@@ -11,10 +11,13 @@ class Lesson extends Model
 
     protected $fillable = [
         'course_id',
+        'section_id',
         'title',
+        'type', // video, audio, article
         'description',
         'content',
         'video_url',
+        'audio_url',
         'order',
         'duration',
     ];
@@ -28,9 +31,24 @@ class Lesson extends Model
         return $this->belongsTo(Course::class);
     }
 
+    public function section()
+    {
+        return $this->belongsTo(CourseSection::class, 'section_id');
+    }
+
     public function progress()
     {
         return $this->hasMany(LessonProgress::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(LessonAttachment::class);
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(LessonNote::class);
     }
 
     // ==========================================
@@ -70,5 +88,17 @@ class Lesson extends Model
         }
 
         return $user->isEnrolledIn($this->course);
+    }
+
+    /** Cek apakah materi memiliki audio/podcast */
+    public function hasAudio(): bool
+    {
+        return $this->type === 'audio' || !empty($this->audio_url);
+    }
+
+    /** Cek apakah materi memiliki video */
+    public function hasVideo(): bool
+    {
+        return !empty($this->video_url) && $this->type !== 'audio';
     }
 }
