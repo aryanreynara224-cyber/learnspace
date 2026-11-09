@@ -64,6 +64,11 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])
     Route::get('/leaderboard', [Student\LeaderboardController::class, 'index'])->name('leaderboard');
     Route::post('/quests/claim', [Student\LeaderboardController::class, 'claimQuest'])->name('quests.claim');
     Route::post('/lessons/{lesson}/focus-complete', [Student\FocusSessionController::class, 'complete'])->name('lessons.focus-complete');
+
+    // Student Notes
+    Route::get('/lessons/{lesson}/notes', [Student\NoteController::class, 'index'])->name('lessons.notes.index');
+    Route::post('/lessons/{lesson}/notes', [Student\NoteController::class, 'store'])->name('lessons.notes.store');
+    Route::delete('/notes/{note}', [Student\NoteController::class, 'destroy'])->name('notes.destroy');
 });
 
 // ==========================================
@@ -82,12 +87,18 @@ Route::prefix('instructor')->name('instructor.')->middleware(['auth', 'role:inst
     Route::delete('/courses/{course}', [Instructor\CourseController::class, 'destroy'])->name('courses.destroy');
     Route::get('/courses/{course}/students', [Instructor\CourseController::class, 'students'])->name('courses.students');
 
+    // Section / Bab CRUD
+    Route::post('/courses/{course}/sections', [Instructor\SectionController::class, 'store'])->name('sections.store');
+    Route::put('/sections/{section}', [Instructor\SectionController::class, 'update'])->name('sections.update');
+    Route::delete('/sections/{section}', [Instructor\SectionController::class, 'destroy'])->name('sections.destroy');
+
     // Lesson CRUD
     Route::get('/courses/{course}/lessons/create', [Instructor\LessonController::class, 'create'])->name('lessons.create');
     Route::post('/courses/{course}/lessons', [Instructor\LessonController::class, 'store'])->name('lessons.store');
     Route::get('/lessons/{lesson}/edit', [Instructor\LessonController::class, 'edit'])->name('lessons.edit');
     Route::put('/lessons/{lesson}', [Instructor\LessonController::class, 'update'])->name('lessons.update');
     Route::delete('/lessons/{lesson}', [Instructor\LessonController::class, 'destroy'])->name('lessons.destroy');
+    Route::delete('/attachments/{attachment}', [Instructor\LessonController::class, 'destroyAttachment'])->name('lessons.attachment.destroy');
 });
 
 // ==========================================

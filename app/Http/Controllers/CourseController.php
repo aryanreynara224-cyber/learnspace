@@ -42,7 +42,7 @@ class CourseController extends Controller
         // Hanya tampilkan kursus yang published
         abort_if(!$course->isPublished(), 404);
 
-        $course->load(['category', 'instructor', 'lessons']);
+        $course->load(['category', 'instructor', 'sections.lessons', 'lessons.attachments']);
         $isEnrolled = auth()->check() && auth()->user()->isEnrolledIn($course);
 
         return view('courses.show', compact('course', 'isEnrolled'));
@@ -63,7 +63,7 @@ class CourseController extends Controller
                 ->with('info', 'Materi ke-' . $lesson->order . ' terkunci. Silakan daftar ke kursus untuk membuka seluruh materi pembelajaran.');
         }
 
-        $course->load(['category', 'instructor', 'lessons']);
+        $course->load(['category', 'instructor', 'sections.lessons', 'lessons.attachments']);
 
         $prevLesson = $course->lessons->where('order', '<', $lesson->order)->last();
         $nextLesson = $course->lessons->where('order', '>', $lesson->order)->first();

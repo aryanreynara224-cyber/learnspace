@@ -33,7 +33,7 @@ class CourseController extends Controller
             ->where('course_id', $course->id)
             ->firstOrFail();
 
-        $course->load(['lessons', 'instructor', 'category']);
+        $course->load(['sections.lessons', 'lessons.attachments', 'instructor', 'category']);
 
         // Ambil ID lesson yang sudah selesai
         $completedLessonIds = LessonProgress::where('user_id', $user->id)
